@@ -30,8 +30,8 @@ public class VectrexGameObject : MonoBehaviour {
         }
 
         // Adjust scale and position
-        transform.position = new Vector3(0.048f, 1.315f, 3.353f);
-        transform.localScale = new Vector3(0.004f, 0.004f, 1.0f);
+        transform.localScale = new Vector3(0.0004f, 0.0004f, 1.0f);
+        transform.localPosition = new Vector3(0.01f, 0.12f, 2.27f);
 
         return 0;
     }
