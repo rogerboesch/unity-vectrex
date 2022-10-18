@@ -16,6 +16,47 @@ public class VectrexGameObject : MonoBehaviour {
     private int m_index = 0;
     private int m_lines = 0;
 
+    private List<string> m_games = new List<string>();
+    private int m_currentGameIndex = 0;
+
+    private void CreateGameList() {
+        m_games.Add("armor_attack.bin");
+        m_games.Add("bedlam.bin");
+        m_games.Add("berzerk.bin");
+        m_games.Add("blitz.bin");
+        m_games.Add("clean_sweep.bin");
+        m_games.Add("cosmic_chasm.bin");
+        m_games.Add("fortress_of_narzord.bin");
+        m_games.Add("headsup.bin");
+        m_games.Add("hyperchase.bin");
+        m_games.Add("mine_storm.bin");
+        m_games.Add("polar_rescue.bin");
+        m_games.Add("pole_position.bin");
+        m_games.Add("rip-off.bin");
+        m_games.Add("scramble.bin");
+        m_games.Add("solar_quest.bin");
+        m_games.Add("space_wars.bin");
+        m_games.Add("spike.bin");
+        m_games.Add("spinball.bin");
+        m_games.Add("star_castle.bin");
+        m_games.Add("star_trek.bin");
+        m_games.Add("starhawk.bin");
+        m_games.Add("web_wars.bin");
+    }
+
+    private string GetCurrentGame() {
+        return m_games[m_currentGameIndex];
+    }
+
+    private void LoadNextGame() {
+        m_currentGameIndex++;
+        if (m_currentGameIndex >= m_games.Count) {
+            m_currentGameIndex = 0;
+        }
+
+        m_vectrex.Start(romName, GetCurrentGame());
+    }
+
     // Emulator post render callback
     int PostRender() {
         // Hide all game objects that left over
@@ -95,6 +136,8 @@ public class VectrexGameObject : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {  
+        CreateGameList();
+        
         m_vectrex = new EmulatorVectrex();
         m_vectrex.m_drawingCallback = AddLines;
         m_vectrex.m_postRenderCallback = PostRender;
@@ -103,7 +146,7 @@ public class VectrexGameObject : MonoBehaviour {
         m_buttons = new bool[]{ false, false, false, false, false, false, false, false };
 
         m_vectrex.Init(310, 410);
-        m_vectrex.Start(romName, cartridgeName);
+        m_vectrex.Start(romName, GetCurrentGame());
     }
 
     // Update is called once per frame
@@ -138,6 +181,9 @@ public class VectrexGameObject : MonoBehaviour {
             Debug.LogFormat("New line max: {0}", m_lines);
         }
 
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            LoadNextGame();
+        }
     }
     
 }
