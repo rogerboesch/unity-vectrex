@@ -29,6 +29,10 @@ public class VectrexGameObject : MonoBehaviour {
             }
         }
 
+        // Adjust scale and position
+        transform.position = new Vector3(0.048f, 1.315f, 3.353f);
+        transform.localScale = new Vector3(0.004f, 0.004f, 1.0f);
+
         return 0;
     }
 
@@ -50,8 +54,8 @@ public class VectrexGameObject : MonoBehaviour {
             lineRenderer.material.color = Color.white;
 
             // set width of the renderer
-            lineRenderer.startWidth = 1.5f;
-            lineRenderer.endWidth = 1.5f;
+            lineRenderer.startWidth = 0.01f;
+            lineRenderer.endWidth = 0.01f;
         }
         else {
             obj = transform.GetChild(m_index-1).gameObject;
