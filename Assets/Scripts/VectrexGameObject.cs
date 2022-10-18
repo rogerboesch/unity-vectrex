@@ -84,6 +84,13 @@ public class VectrexGameObject : MonoBehaviour {
         GameObject obj = null;
         LineRenderer lineRenderer = null;
 
+        if (x2-x1 == 0) {
+            x1--;
+        }
+        else if (y2-y1 == 0) {
+          // y2++;
+        }
+
         if (m_index > transform.childCount) { 
             obj = new GameObject("line_"+m_index);
             lineRenderer = obj.AddComponent<LineRenderer>();
