@@ -3,6 +3,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class VectrexGameObject : MonoBehaviour {
 
@@ -10,6 +11,7 @@ public class VectrexGameObject : MonoBehaviour {
     public string romName = "romfast.bin";
     public string cartridgeName = "";
     public T5InputReceiver receiver = null;
+    public TMP_Text gameName = null;
 
     private EmulatorVectrex m_vectrex;
 
@@ -21,6 +23,46 @@ public class VectrexGameObject : MonoBehaviour {
 
     private List<string> m_games = new List<string>();
     private int m_currentGameIndex = 0;
+
+    private string FirstCharacterToUpper(string str)
+    {
+        if (str == null)
+            return null;
+
+        if (str.Length > 1)
+            return char.ToUpper(str[0]) + str.Substring(1);
+
+        return str.ToUpper();
+    }
+
+    private string GetReadableName(string romName) {
+        string[] parts = romName.Split('.');
+        if (parts.Length > 1) {
+            romName = parts[0];
+        }
+
+        string name = "";
+        parts = romName.Split('_');
+        foreach (var part in parts)
+        {
+            if (name.Length > 0) {
+                name += " ";
+            }
+
+            name += FirstCharacterToUpper(part);
+        } 
+
+        return name;
+    }
+
+    private void UpdateUI() {
+        gameName.text = GetReadableName(GetCurrentGame());
+    }
+
+    public void OnPreviousGameButton()
+    {
+        LoadPreviousGame();
+    }
 
     public void OnNextGameButton()
     {
@@ -103,6 +145,9 @@ public class VectrexGameObject : MonoBehaviour {
 
     private void CreateGameList() {
         m_games.Add("mine_storm.bin");
+        m_games.Add("polar_rescue.bin");
+        m_games.Add("pole_position.bin");
+        m_games.Add("web_wars.bin");
         m_games.Add("armor_attack.bin");
         m_games.Add("bedlam.bin");
         m_games.Add("berzerk.bin");
@@ -112,8 +157,6 @@ public class VectrexGameObject : MonoBehaviour {
         m_games.Add("fortress_of_narzord.bin");
         m_games.Add("headsup.bin");
         m_games.Add("hyperchase.bin");
-        m_games.Add("polar_rescue.bin");
-        m_games.Add("pole_position.bin");
         m_games.Add("rip-off.bin");
         m_games.Add("scramble.bin");
         m_games.Add("solar_quest.bin");
@@ -123,11 +166,21 @@ public class VectrexGameObject : MonoBehaviour {
         m_games.Add("star_castle.bin");
         m_games.Add("star_trek.bin");
         m_games.Add("starhawk.bin");
-        m_games.Add("web_wars.bin");
     }
 
     private string GetCurrentGame() {
         return m_games[m_currentGameIndex];
+    }
+
+    private void LoadPreviousGame() {
+        m_currentGameIndex--;
+        if (m_currentGameIndex < 0) {
+            m_currentGameIndex = m_games.Count-1;
+        }
+
+        m_vectrex.Start(romName, GetCurrentGame());
+
+        UpdateUI();
     }
 
     private void LoadNextGame() {
@@ -137,6 +190,7 @@ public class VectrexGameObject : MonoBehaviour {
         }
 
         m_vectrex.Start(romName, GetCurrentGame());
+        UpdateUI();
     }
 
     // Emulator post render callback
@@ -193,7 +247,7 @@ public class VectrexGameObject : MonoBehaviour {
             lineRenderer.enabled = true;
         }
 
-        // set the position
+        // set the position (X is wrong, must be mirrored)
         Vector3 pos1 = new Vector3(xOffset+155-x1, 410-y1, 0);
         Vector3 pos2 = new Vector3(xOffset+155-x2, 410-y2, 0);
         lineRenderer.SetPosition(0, pos1);
@@ -239,7 +293,8 @@ public class VectrexGameObject : MonoBehaviour {
 
         // Tilt 5 Integration (temporary)
 #if TILT_5
-        receiver.OnOnePressed.AddListener(OnNextGameButton);
+        receiver.OnOnePressed.AddListener(OnPreviousGameButton);
+        receiver.OnTwoPressed.AddListener(OnNextGameButton);
 
         receiver.OnAPressed.AddListener(OnGameButton1Pressed);
         receiver.OnBPressed.AddListener(OnGameButton2Pressed);
@@ -258,6 +313,8 @@ public class VectrexGameObject : MonoBehaviour {
 
         receiver.OnTriggerPressed.AddListener(OnGameButton4Pressed);
         receiver.OnTriggerReleased.AddListener(OnGameButton4Released);
+
+        UpdateUI();
 #endif
     }
 
