@@ -621,6 +621,7 @@ MonoBehaviour:
   xOffset: 0
   romName: romfast.bin
   cartridgeName: pole_position.bin
+  receiver: {fileID: 1840061863}
 --- !u!4 &1490119820
 Transform:
   m_ObjectHideFlags: 0

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#define TILT_5
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +9,8 @@ public class VectrexGameObject : MonoBehaviour {
     public int xOffset = 0;
     public string romName = "romfast.bin";
     public string cartridgeName = "";
-    
+    public T5InputReceiver receiver = null;
+
     private EmulatorVectrex m_vectrex;
 
     private bool[] m_buttons;
@@ -19,7 +22,87 @@ public class VectrexGameObject : MonoBehaviour {
     private List<string> m_games = new List<string>();
     private int m_currentGameIndex = 0;
 
+    public void OnNextGameButton()
+    {
+        LoadNextGame();
+    }
+
+    public void OnGameButton1Pressed()
+    {
+        m_vectrex.Key(Vectrex.PL1_LEFT, true);
+    }
+
+    public void OnGameButton2Pressed()
+    {
+        m_vectrex.Key(Vectrex.PL1_RIGHT, true);
+    }
+
+    public void OnGameButton3Pressed()
+    {
+        m_vectrex.Key(Vectrex.PL1_UP, true);
+    }
+
+    public void OnGameButton4Pressed()
+    {
+        m_vectrex.Key(Vectrex.PL1_DOWN, true);
+    }
+
+    public void OnGameButton1Released()
+    {
+        m_vectrex.Key(Vectrex.PL1_LEFT, false);
+    }
+
+    public void OnGameButton2Released()
+    {
+        m_vectrex.Key(Vectrex.PL1_RIGHT, false);
+    }
+
+    public void OnGameButton3Released()
+    {
+        m_vectrex.Key(Vectrex.PL1_UP, false);
+    }
+
+    public void OnGameButton4Released()
+    {
+        m_vectrex.Key(Vectrex.PL1_DOWN, false);
+    }
+
+    public void OnGameStickLeft()
+    {
+        m_vectrex.Key(Vectrex.PL2_LEFT, true);
+        Debug.LogFormat("Stick left");
+    }
+
+    public void OnGameStickRight()
+    {
+        m_vectrex.Key(Vectrex.PL2_RIGHT, true);
+        Debug.LogFormat("Stick right");
+    }
+
+    public void OnGameStickUp()
+    {
+        m_vectrex.Key(Vectrex.PL2_UP, true);
+        Debug.LogFormat("Stick up");
+    }
+
+    public void OnGameStickDown()
+    {
+        m_vectrex.Key(Vectrex.PL2_DOWN, true);
+        Debug.LogFormat("Stick down");
+    }
+
+    public void OnGameStickReleased()
+    {
+        Debug.LogFormat("Stick released");
+
+        m_vectrex.Key(Vectrex.PL2_LEFT, false);
+        m_vectrex.Key(Vectrex.PL2_RIGHT, false);
+        m_vectrex.Key(Vectrex.PL2_UP, false);
+        m_vectrex.Key(Vectrex.PL2_DOWN, false);
+    }
+
     private void CreateGameList() {
+        m_games.Add("mine_storm.bin");
         m_games.Add("armor_attack.bin");
         m_games.Add("bedlam.bin");
         m_games.Add("berzerk.bin");
@@ -29,7 +112,6 @@ public class VectrexGameObject : MonoBehaviour {
         m_games.Add("fortress_of_narzord.bin");
         m_games.Add("headsup.bin");
         m_games.Add("hyperchase.bin");
-        m_games.Add("mine_storm.bin");
         m_games.Add("polar_rescue.bin");
         m_games.Add("pole_position.bin");
         m_games.Add("rip-off.bin");
@@ -154,12 +236,37 @@ public class VectrexGameObject : MonoBehaviour {
 
         m_vectrex.Init(310, 410);
         m_vectrex.Start(romName, GetCurrentGame());
+
+        // Tilt 5 Integration (temporary)
+#if TILT_5
+        receiver.OnOnePressed.AddListener(OnNextGameButton);
+
+        receiver.OnAPressed.AddListener(OnGameButton1Pressed);
+        receiver.OnBPressed.AddListener(OnGameButton2Pressed);
+        receiver.OnXPressed.AddListener(OnGameButton3Pressed);
+        receiver.OnYPressed.AddListener(OnGameButton4Pressed);
+        receiver.OnALifted.AddListener(OnGameButton1Released);
+        receiver.OnBLifted.AddListener(OnGameButton2Released);
+        receiver.OnXLifted.AddListener(OnGameButton3Released);
+        receiver.OnYLifted.AddListener(OnGameButton4Released);
+
+        receiver.OnStickLeft.AddListener(OnGameStickLeft);
+        receiver.OnStickRight.AddListener(OnGameStickRight);
+        receiver.OnStickUp.AddListener(OnGameStickUp);
+        receiver.OnStickDown.AddListener(OnGameStickDown);
+        receiver.OnStickStopMoving.AddListener(OnGameStickReleased);
+
+        receiver.OnTriggerPressed.AddListener(OnGameButton4Pressed);
+        receiver.OnTriggerReleased.AddListener(OnGameButton4Released);
+#endif
     }
 
     // Update is called once per frame
     void Update() {    
         m_index = 0;
 
+#if TILT_5
+#else
         // Keys are for now optimised for Minestorm. Will change that after
         if (Input.GetAxis("Horizontal") < 0) {
             SetButton(Vectrex.PL2_LEFT);
@@ -180,6 +287,7 @@ public class VectrexGameObject : MonoBehaviour {
         }
 
         ReleaseButtons();
+#endif
 
         m_vectrex.Frame();
 
