@@ -71,7 +71,7 @@ public class VectrexGameObject : MonoBehaviour {
         }
 
         // Adjust scale and position
-        transform.localScale = new Vector3(0.0004f, 0.0004f, 1.0f);
+        transform.localScale = new Vector3(0.0004f*1.2f, 0.0004f*1.2f, 1.0f);
         transform.localPosition = new Vector3(0.01f, 0.12f, 2.27f);
 
         return 0;
@@ -85,7 +85,7 @@ public class VectrexGameObject : MonoBehaviour {
         LineRenderer lineRenderer = null;
 
         if (x2-x1 == 0) {
-            x1--;
+            x2++;
         }
         else if (y2-y1 == 0) {
           // y2++;
