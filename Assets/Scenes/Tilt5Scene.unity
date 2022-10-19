@@ -949,7 +949,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c221c825d31a45f1abab0e6a7f52897, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xOffset: 0
+  xOffset: 128
+  yOffset: -40
   romName: romfast.bin
   cartridgeName: pole_position.bin
   receiver: {fileID: 1840061863}

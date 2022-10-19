@@ -8,6 +8,7 @@ using TMPro;
 public class VectrexGameObject : MonoBehaviour {
 
     public int xOffset = 0;
+    public int yOffset = 0;
     public string romName = "romfast.bin";
     public string cartridgeName = "";
     public T5InputReceiver receiver = null;
@@ -248,8 +249,8 @@ public class VectrexGameObject : MonoBehaviour {
         }
 
         // set the position (X is wrong, must be mirrored)
-        Vector3 pos1 = new Vector3(xOffset+155-x1, 410-y1, 0);
-        Vector3 pos2 = new Vector3(xOffset+155-x2, 410-y2, 0);
+        Vector3 pos1 = new Vector3(x1-xOffset, 410-y1-yOffset, 0);
+        Vector3 pos2 = new Vector3(x2-xOffset, 410-y2-yOffset, 0);
         lineRenderer.SetPosition(0, pos1);
         lineRenderer.SetPosition(1, pos2);
 
