@@ -3,72 +3,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public class VectrexGameObject : MonoBehaviour {
-
+    public string romName = "romfast.bin";
     public int xOffset = 0;
     public int yOffset = 0;
-    public string romName = "romfast.bin";
-    public string cartridgeName = "";
     public T5InputReceiver receiver = null;
-    public TMP_Text gameName = null;
 
-    private EmulatorVectrex m_vectrex;
-
+    private EmulatorVectrex m_vectrex = null;
+    
     private bool[] m_buttons;
     private bool[] m_lastButtons;
 
     private int m_index = 0;
     private int m_lines = 0;
 
-    private List<string> m_games = new List<string>();
-    private int m_currentGameIndex = 0;
+    private bool m_paused = false;
 
-    private string FirstCharacterToUpper(string str)
-    {
-        if (str == null)
-            return null;
-
-        if (str.Length > 1)
-            return char.ToUpper(str[0]) + str.Substring(1);
-
-        return str.ToUpper();
-    }
-
-    private string GetReadableName(string romName) {
-        string[] parts = romName.Split('.');
-        if (parts.Length > 1) {
-            romName = parts[0];
-        }
-
-        string name = "";
-        parts = romName.Split('_');
-        foreach (var part in parts)
-        {
-            if (name.Length > 0) {
-                name += " ";
-            }
-
-            name += FirstCharacterToUpper(part);
-        } 
-
-        return name;
-    }
-
-    private void UpdateUI() {
-        gameName.text = GetReadableName(GetCurrentGame());
-    }
-
-    public void OnPreviousGameButton()
-    {
-        LoadPreviousGame();
-    }
-
-    public void OnNextGameButton()
-    {
-        LoadNextGame();
-    }
+    // Input handling
 
     public void OnGameButton1Pressed()
     {
@@ -144,57 +96,9 @@ public class VectrexGameObject : MonoBehaviour {
         m_vectrex.Key(Vectrex.PL2_DOWN, false);
     }
 
-    private void CreateGameList() {
-        m_games.Add("mine_storm.bin");
-        m_games.Add("polar_rescue.bin");
-        m_games.Add("pole_position.bin");
-        m_games.Add("web_wars.bin");
-        m_games.Add("armor_attack.bin");
-        m_games.Add("bedlam.bin");
-        m_games.Add("berzerk.bin");
-        m_games.Add("blitz.bin");
-        m_games.Add("clean_sweep.bin");
-        m_games.Add("cosmic_chasm.bin");
-        m_games.Add("fortress_of_narzord.bin");
-        m_games.Add("headsup.bin");
-        m_games.Add("hyperchase.bin");
-        m_games.Add("rip-off.bin");
-        m_games.Add("scramble.bin");
-        m_games.Add("solar_quest.bin");
-        m_games.Add("space_wars.bin");
-        m_games.Add("spike.bin");
-        m_games.Add("spinball.bin");
-        m_games.Add("star_castle.bin");
-        m_games.Add("star_trek.bin");
-        m_games.Add("starhawk.bin");
-    }
+    // Emulator
 
-    private string GetCurrentGame() {
-        return m_games[m_currentGameIndex];
-    }
-
-    private void LoadPreviousGame() {
-        m_currentGameIndex--;
-        if (m_currentGameIndex < 0) {
-            m_currentGameIndex = m_games.Count-1;
-        }
-
-        m_vectrex.Start(romName, GetCurrentGame());
-
-        UpdateUI();
-    }
-
-    private void LoadNextGame() {
-        m_currentGameIndex++;
-        if (m_currentGameIndex >= m_games.Count) {
-            m_currentGameIndex = 0;
-        }
-
-        m_vectrex.Start(romName, GetCurrentGame());
-        UpdateUI();
-    }
-
-    // Emulator post render callback
+    // Post render callback
     int PostRender() {
         // Hide all game objects that left over
         GameObject obj = null;
@@ -259,6 +163,34 @@ public class VectrexGameObject : MonoBehaviour {
         return 0;
     }
 
+    public void StartGame(string name) {
+        if (m_vectrex == null)
+        {
+            m_vectrex = new EmulatorVectrex();
+            m_vectrex.m_drawingCallback = AddLines;
+            m_vectrex.m_postRenderCallback = PostRender;
+
+            m_lastButtons = new bool[] { false, false, false, false, false, false, false, false };
+            m_buttons = new bool[] { false, false, false, false, false, false, false, false };
+
+            m_vectrex.Init(310, 410);
+        }
+
+        m_vectrex.Start(romName, name);
+    }
+
+    public void PauseGame(bool flag)
+    {
+        if (m_paused == flag)
+        {
+            return;
+        }
+
+        m_paused = flag;
+    }
+
+    // Vectrex key handling
+
     void SetButton(int key) {   
         m_buttons[key] = true;
 
@@ -278,25 +210,11 @@ public class VectrexGameObject : MonoBehaviour {
         }
     }
 
-    // Start is called before the first frame update
+    // Game loop
+
     void Start() {  
-        CreateGameList();
-        
-        m_vectrex = new EmulatorVectrex();
-        m_vectrex.m_drawingCallback = AddLines;
-        m_vectrex.m_postRenderCallback = PostRender;
-
-        m_lastButtons = new bool[]{ false, false, false, false, false, false, false, false };
-        m_buttons = new bool[]{ false, false, false, false, false, false, false, false };
-
-        m_vectrex.Init(310, 410);
-        m_vectrex.Start(romName, GetCurrentGame());
-
         // Tilt 5 Integration (temporary)
 #if TILT_5
-        receiver.OnOnePressed.AddListener(OnPreviousGameButton);
-        receiver.OnTwoPressed.AddListener(OnNextGameButton);
-
         receiver.OnAPressed.AddListener(OnGameButton1Pressed);
         receiver.OnBPressed.AddListener(OnGameButton2Pressed);
         receiver.OnXPressed.AddListener(OnGameButton3Pressed);
@@ -314,13 +232,16 @@ public class VectrexGameObject : MonoBehaviour {
 
         receiver.OnTriggerPressed.AddListener(OnGameButton4Pressed);
         receiver.OnTriggerReleased.AddListener(OnGameButton4Released);
-
-        UpdateUI();
 #endif
     }
 
     // Update is called once per frame
-    void Update() {    
+    void Update() {  
+        if (m_paused)
+        {
+            return;
+        }
+
         m_index = 0;
 
 #if TILT_5
@@ -352,10 +273,6 @@ public class VectrexGameObject : MonoBehaviour {
         if (m_index > m_lines) {
             m_lines = m_index;
             Debug.LogFormat("New line max: {0}", m_lines);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape)) {
-            LoadNextGame();
         }
     }
     
