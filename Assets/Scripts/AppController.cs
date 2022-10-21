@@ -11,6 +11,7 @@ public class AppController : MonoBehaviour
 
     private static AppController s_instance = null;
 
+    public GameObject applicationArea = null;
     public bool gameMode = true;
     public bool showLogInfo = true;
     public T5InputReceiver receiver = null;
@@ -131,6 +132,10 @@ public class AppController : MonoBehaviour
         if (gameMode)
         {
             LoadNextGame();
+        }
+        else
+        {
+            RotateApp(90.0f);
         }
     }
 
@@ -295,6 +300,13 @@ public class AppController : MonoBehaviour
         Vector3 rotation = vectrexModel.transform.eulerAngles;
         rotation.y += value;
         vectrexModel.transform.eulerAngles = rotation;
+    }
+
+    void RotateApp(float value)
+    {
+        Vector3 rotation = applicationArea.transform.eulerAngles;
+        rotation.y += value;
+        applicationArea.transform.eulerAngles = rotation;
     }
 
     // Game loop

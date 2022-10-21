@@ -443,6 +443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f76139165ecda6a498cd469323a6d65b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  applicationArea: {fileID: 879218390}
   gameMode: 1
   showLogInfo: 1
   receiver: {fileID: 1840061863}
