@@ -171,6 +171,42 @@ public class AppController : MonoBehaviour
         ToggleMode();
     }
 
+    public void OnAPressed()
+    {
+        if (!gameMode)
+        {
+            // Left
+            ChangeModelPosition(-0.1f, 0.0f);
+        }
+    }
+
+    public void OnYPressed()
+    {
+        if (!gameMode)
+        {
+            // Right
+            ChangeModelPosition(0.1f, 0.0f);
+        }
+    }
+
+    public void OnXPressed()
+    {
+        if (!gameMode)
+        {
+            // Up
+            ChangeModelPosition(0.0f, 0.1f);
+        }
+    }
+
+    public void OnBPressed()
+    {
+        if (!gameMode)
+        {
+            // Down
+            ChangeModelPosition(0.0f, -0.1f);
+        }
+    }
+
     // UI
 
     private void UpdateUI() {
@@ -245,6 +281,15 @@ public class AppController : MonoBehaviour
         vectrexModel.transform.localScale = new Vector3(newScale, newScale, newScale);
     }
 
+    void ChangeModelPosition(float xValue, float zValue)
+    {
+        Vector3 position = vectrexModel.transform.localPosition;
+        position.x += xValue;
+        position.z += zValue;
+
+        vectrexModel.transform.localPosition = position;
+    }
+
     void RotateModel(float value)
     {
         Vector3 rotation = vectrexModel.transform.eulerAngles;
@@ -272,6 +317,11 @@ public class AppController : MonoBehaviour
         receiver.OnStickHeldUp.AddListener(OnStickHeldUp);
         receiver.OnStickHeldDown.AddListener(OnStickHeldDown);
         receiver.OnStickPressed.AddListener(OnStickPressed);
+
+        receiver.OnAPressed.AddListener(OnAPressed);
+        receiver.OnBPressed.AddListener(OnBPressed);
+        receiver.OnXPressed.AddListener(OnXPressed);
+        receiver.OnYPressed.AddListener(OnYPressed);
 
         vectrexRenderer.StartGame(GetCurrentGame());
     }

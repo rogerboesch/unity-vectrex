@@ -236,6 +236,7 @@ public class VectrexRenderer : MonoBehaviour {
         receiver.OnStickDown.AddListener(OnGameStickDown);
         receiver.OnStickStopMoving.AddListener(OnGameStickReleased);
 
+        // Fire support for Minestorm on Trigger, change by game
         receiver.OnTriggerPressed.AddListener(OnGameButton4Pressed);
         receiver.OnTriggerReleased.AddListener(OnGameButton4Released);
 #endif
