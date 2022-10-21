@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VectrexGameObject : MonoBehaviour {
+public class VectrexRenderer : MonoBehaviour {
     public string romName = "romfast.bin";
     public int xOffset = 0;
     public int yOffset = 0;
@@ -65,30 +65,30 @@ public class VectrexGameObject : MonoBehaviour {
     public void OnGameStickLeft()
     {
         m_vectrex.Key(Vectrex.PL2_LEFT, true);
-        Debug.LogFormat("Stick left");
+        RB.Log.Message("Stick left");
     }
 
     public void OnGameStickRight()
     {
         m_vectrex.Key(Vectrex.PL2_RIGHT, true);
-        Debug.LogFormat("Stick right");
+        RB.Log.Message("Stick right");
     }
 
     public void OnGameStickUp()
     {
         m_vectrex.Key(Vectrex.PL2_UP, true);
-        Debug.LogFormat("Stick up");
+        RB.Log.Message("Stick up");
     }
 
     public void OnGameStickDown()
     {
         m_vectrex.Key(Vectrex.PL2_DOWN, true);
-        Debug.LogFormat("Stick down");
+        RB.Log.Message("Stick down");
     }
 
     public void OnGameStickReleased()
     {
-        Debug.LogFormat("Stick released");
+        RB.Log.Message("Stick released");
 
         m_vectrex.Key(Vectrex.PL2_LEFT, false);
         m_vectrex.Key(Vectrex.PL2_RIGHT, false);
@@ -272,7 +272,7 @@ public class VectrexGameObject : MonoBehaviour {
 
         if (m_index > m_lines) {
             m_lines = m_index;
-            Debug.LogFormat("New line max: {0}", m_lines);
+            RB.Log.Message($"New line max: {m_lines}");
         }
     }
     

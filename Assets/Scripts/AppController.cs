@@ -1,6 +1,5 @@
 #define TILT_5
 
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -8,16 +7,23 @@ using TiltFive;
 
 public class AppController : MonoBehaviour
 {
+    private static AppController s_instance = null;
+
     public bool gameMode = true;
+    public bool showLogInfo = true;
     public T5InputReceiver receiver = null;
     public TMP_Text gameNameLabel = null;
     public TMP_Text modeLabel = null;
-    public VectrexGameObject vectrexController = null;
+    public VectrexRenderer vectrexRenderer = null;
     public GameObject vectrexModel = null;
     public TiltFiveManager tiltManager = null;
-
+    public TMP_Text logTextLabel = null;
+   
     private List<string> m_games = new List<string>();
     private int m_currentGameIndex = 0;
+    private List<string> m_log = new List<string>();
+
+    public static AppController Instance { get { return s_instance; } }
 
     // Handling of proper game name
     private string FirstCharacterToUpper(string str)
@@ -65,7 +71,7 @@ public class AppController : MonoBehaviour
 
         UpdateUI();
 
-        vectrexController.StartGame(GetCurrentGame());
+        vectrexRenderer.StartGame(GetCurrentGame());
     }
 
     private void LoadNextGame() {
@@ -76,7 +82,7 @@ public class AppController : MonoBehaviour
 
         UpdateUI();
 
-        vectrexController.StartGame(GetCurrentGame());
+        vectrexRenderer.StartGame(GetCurrentGame());
     }
 
     private void CreateGameList() {
@@ -106,17 +112,27 @@ public class AppController : MonoBehaviour
 
     // Input handling
 
-    public void OnPreviousGameButton()
+    public void OnButtonOnePressed()
     {
-        LoadPreviousGame();
+        if (gameMode)
+        {
+            LoadPreviousGame();
+        }
+        else
+        {
+            ToggleLogInfo();
+        }
     }
 
-    public void OnNextGameButton()
+    public void OnButtonTwoPressed()
     {
-        LoadNextGame();
+        if (gameMode)
+        {
+            LoadNextGame();
+        }
     }
 
-    public void OnRotateLeft()
+    public void OnStickHeldLeft()
     {
         if (!gameMode)
         {
@@ -124,7 +140,7 @@ public class AppController : MonoBehaviour
         }
     }
 
-    public void OnRotateRight()
+    public void OnStickHeldRight()
     {
         if (!gameMode)
         {
@@ -132,20 +148,25 @@ public class AppController : MonoBehaviour
         }
     }
 
-    public void OnIncreaseContentSize()
+    public void OnStickHeldUp()
     {
         if (!gameMode)
         {
-            ChangeContentSize(0.1f);
+            ChangeModelScale(0.1f);
         }
     }
 
-    public void OnDecreaseContentSize()
+    public void OnStickHeldDown()
     {
         if (!gameMode)
         {
-            ChangeContentSize(-0.1f);
+            ChangeModelScale(-0.1f);
         }
+    }
+
+    public void OnStickPressed()
+    {
+        ToggleMode();
     }
 
     // UI
@@ -161,12 +182,37 @@ public class AppController : MonoBehaviour
         gameNameLabel.text = GetReadableName(GetCurrentGame());
     }
 
+    private void UpdateLogUI()
+    {
+        string text = "";
+
+        foreach (var line in m_log)
+        {
+            if (text.Length > 0)
+            {
+                text += "\n";
+            }
+
+            text += line;
+        }
+
+        logTextLabel.text = text;
+    }
+
     void ToggleMode() {
         gameMode = !gameMode;
 
-        vectrexController.PauseGame(!gameMode);
+        vectrexRenderer.PauseGame(!gameMode);
 
         UpdateUI();
+    }
+
+    void ToggleLogInfo()
+    {
+        showLogInfo = !showLogInfo;
+        logTextLabel.enabled = showLogInfo;
+
+        UpdateLogUI();
     }
 
     void ChangeContentSize(float value)
@@ -182,6 +228,21 @@ public class AppController : MonoBehaviour
         tiltManager.scaleSettings.contentScaleRatio = newSize;
     }
 
+    void ChangeModelScale(float value)
+    {
+        Vector3 scale = vectrexModel.transform.localScale;
+        float currentScale = scale.y;
+        float newScale = currentScale + value;
+
+        if (newScale < 1.0f || newScale > 100.0f)
+        {
+            return;
+        }
+
+
+        vectrexModel.transform.localScale = new Vector3(newScale, newScale, newScale);
+    }
+
     void RotateModel(float value)
     {
         Vector3 rotation = vectrexModel.transform.eulerAngles;
@@ -191,20 +252,26 @@ public class AppController : MonoBehaviour
 
     // Game loop
 
+    private void Awake()
+    {
+        s_instance = this;
+    }
+
     void Start()
     {
         CreateGameList();
 
         UpdateUI();
         
-        receiver.OnOnePressed.AddListener(OnPreviousGameButton);
-        receiver.OnTwoPressed.AddListener(OnNextGameButton);
-        receiver.OnStickHeldRight.AddListener(OnRotateRight);
-        receiver.OnStickHeldLeft.AddListener(OnRotateLeft);
-        receiver.OnStickHeldUp.AddListener(OnIncreaseContentSize);
-        receiver.OnStickHeldDown.AddListener(OnDecreaseContentSize);
+        receiver.OnOnePressed.AddListener(OnButtonOnePressed);
+        receiver.OnTwoPressed.AddListener(OnButtonTwoPressed);
+        receiver.OnStickHeldRight.AddListener(OnStickHeldRight);
+        receiver.OnStickHeldLeft.AddListener(OnStickHeldLeft);
+        receiver.OnStickHeldUp.AddListener(OnStickHeldUp);
+        receiver.OnStickHeldDown.AddListener(OnStickHeldDown);
+        receiver.OnStickPressed.AddListener(OnStickPressed);
 
-        vectrexController.StartGame(GetCurrentGame());
+        vectrexRenderer.StartGame(GetCurrentGame());
     }
 
     void Update()
@@ -230,12 +297,12 @@ public class AppController : MonoBehaviour
         {
             if (UnityEngine.Input.GetKeyDown(KeyCode.LeftArrow))
             {
-                ChangeContentSize(-1.0f);
+                ChangeModelScale(-1.0f);
             }
 
             if (UnityEngine.Input.GetKeyDown(KeyCode.RightArrow))
             {
-                ChangeContentSize(1.0f);
+                ChangeModelScale(1.0f);
             }
 
             if (UnityEngine.Input.GetKeyDown(KeyCode.UpArrow))
@@ -245,4 +312,11 @@ public class AppController : MonoBehaviour
         }
     }
 
+    // Logging (UI)
+
+    public void AddMessage(string text)
+    {
+        m_log.Add(text);
+        UpdateLogUI();
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 using Uint = System.Int32;
@@ -380,21 +381,36 @@ public class EmulatorVectrex {
     }
 
     private byte[] LoadBytes(string filename) {
-        System.IO.FileStream fileStream = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
-        System.IO.BinaryReader binReader = new System.IO.BinaryReader(fileStream);
-        byte[] data = binReader.ReadBytes((int)fileStream.Length);
+        System.IO.FileStream fileStream = null;
+        System.IO.BinaryReader binReader = null;
+        byte[] data = null;
 
-        binReader.Close();
-        fileStream.Close();
+        try
+        {
+            fileStream = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            binReader = new System.IO.BinaryReader(fileStream);
+            data = binReader.ReadBytes((int)fileStream.Length);
+
+            RB.Log.Message($"ROM file {filename} loaded");
+        }
+        catch (FileNotFoundException)
+        {
+            RB.Log.Error($"ROM file {filename} NOT loaded");
+        }
+        finally
+        {
+            if (binReader != null) binReader.Close();
+            if (fileStream != null) fileStream.Close();
+        }
 
         return data;
     }
 
     private void LoadFile(string romfile, string cartfile) {
-        m_rom = LoadBytes("Assets/Roms/" + romfile);
+        m_rom = LoadBytes("C:\\Users\\me\\Desktop\\test5\\Roms\\" + romfile);
 
         if (cartfile.Length > 0) {
-            m_cartridge = LoadBytes("Assets/Roms/" + cartfile);
+            m_cartridge = LoadBytes("C:\\Users\\me\\Desktop\\test5\\Roms\\" + cartfile);
         }
     }
 
