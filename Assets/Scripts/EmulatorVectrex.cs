@@ -46,6 +46,9 @@ public struct Vector {
 };
 
 public class EmulatorVectrex {
+    // TODO: Make flexible, create at runtime
+    private const string ROM_FILE_PATH = "C:\\Users\\me\\Desktop\\roms\\";
+
     public System.Func<int, int, int, int, int, int> m_drawingCallback;
     public System.Func<int> m_postRenderCallback;
 
@@ -207,6 +210,8 @@ public class EmulatorVectrex {
    }
 
     public void Init(Uint width, int height) {
+        RB.Log.Message("Emulator - Init");
+
         m_width = width;
         m_height = height;
 
@@ -220,6 +225,8 @@ public class EmulatorVectrex {
     }
 
     public void Start(string romfile, string cartfile) {
+        RB.Log.Message("Emulator - Start");
+
         LoadFile(romfile, cartfile);
 
         m_ic8910.Start(ref m_soundRegisters); 
@@ -257,6 +264,8 @@ public class EmulatorVectrex {
         m_paused = false;
     }
     private void Reset() {
+        RB.Log.Message("Emulator - Reset");
+
         // RAM
         for (Uint r = 0; r < 1024; r++) {
             m_ram[r] = (Uint8)(r & 0xff);
@@ -328,6 +337,8 @@ public class EmulatorVectrex {
     }
 
     private void Emulate(Ulong cycles) {
+        RB.Log.Debug("Emulator - Run cycle");
+
         Uint c, icycles;
 
         while (cycles > 0) {
@@ -362,6 +373,8 @@ public class EmulatorVectrex {
     }
 
     private void Render() {
+        RB.Log.Debug($"Emulator - Render lines: {m_vectors_draw.Count}");
+
         foreach (Vector vector in m_vectors_draw) {
             Uint8 color = (Uint8)(vector.color * 256 / Vectrex.VECTREX_COLORS);
             
@@ -371,8 +384,8 @@ public class EmulatorVectrex {
                      (Uint)(m_yOffset + vector.y1 / m_scaling), color);
         }
 
+        RB.Log.Debug("Emulator - Call post render callback");
         m_postRenderCallback();
-
     }
 
     // Internals 
@@ -390,12 +403,10 @@ public class EmulatorVectrex {
             fileStream = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
             binReader = new System.IO.BinaryReader(fileStream);
             data = binReader.ReadBytes((int)fileStream.Length);
-
-            RB.Log.Message($"ROM file {filename} loaded");
         }
         catch (FileNotFoundException)
         {
-            RB.Log.Error($"ROM file {filename} NOT loaded");
+            RB.Log.Error($"Emulator - ROM file not loaded: {filename}");
         }
         finally
         {
@@ -403,14 +414,23 @@ public class EmulatorVectrex {
             if (fileStream != null) fileStream.Close();
         }
 
+        if (data != null)
+        {
+            RB.Log.Message($"Emulator - ROM file loaded ({data.Length} bytes)");
+        }
+        else
+        {
+            RB.Log.Error($"Emulator - ROM file not found: {filename}");
+        }
+
         return data;
     }
 
     private void LoadFile(string romfile, string cartfile) {
-        m_rom = LoadBytes("C:\\Users\\me\\Desktop\\test5\\Roms\\" + romfile);
+        m_rom = LoadBytes(ROM_FILE_PATH + romfile);
 
         if (cartfile.Length > 0) {
-            m_cartridge = LoadBytes("C:\\Users\\me\\Desktop\\test5\\Roms\\" + cartfile);
+            m_cartridge = LoadBytes(ROM_FILE_PATH + cartfile);
         }
     }
 

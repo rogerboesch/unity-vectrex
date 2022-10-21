@@ -444,6 +444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameMode: 1
+  showLogInfo: 1
   receiver: {fileID: 1840061863}
   gameNameLabel: {fileID: 780842263}
   modeLabel: {fileID: 616936826}
@@ -1280,31 +1281,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '<b>asdd</b>
-
-    dadadad
-
-
-    da
-
-    d
-
-    ad
-
-    as
-
-    d
-
-
-    a
-
-    a
-
-    asda
-
-    d
-
-    as'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

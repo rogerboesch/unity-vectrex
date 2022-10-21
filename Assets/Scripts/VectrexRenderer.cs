@@ -65,30 +65,30 @@ public class VectrexRenderer : MonoBehaviour {
     public void OnGameStickLeft()
     {
         m_vectrex.Key(Vectrex.PL2_LEFT, true);
-        RB.Log.Message("Stick left");
+        RB.Log.Debug("Stick left");
     }
 
     public void OnGameStickRight()
     {
         m_vectrex.Key(Vectrex.PL2_RIGHT, true);
-        RB.Log.Message("Stick right");
+        RB.Log.Debug("Stick right");
     }
 
     public void OnGameStickUp()
     {
         m_vectrex.Key(Vectrex.PL2_UP, true);
-        RB.Log.Message("Stick up");
+        RB.Log.Debug("Stick up");
     }
 
     public void OnGameStickDown()
     {
         m_vectrex.Key(Vectrex.PL2_DOWN, true);
-        RB.Log.Message("Stick down");
+        RB.Log.Debug("Stick down");
     }
 
     public void OnGameStickReleased()
     {
-        RB.Log.Message("Stick released");
+        RB.Log.Debug("Stick released");
 
         m_vectrex.Key(Vectrex.PL2_LEFT, false);
         m_vectrex.Key(Vectrex.PL2_RIGHT, false);
@@ -100,6 +100,8 @@ public class VectrexRenderer : MonoBehaviour {
 
     // Post render callback
     int PostRender() {
+        RB.Log.Debug($"Renderer - Post Render, lines: {m_lines}");
+
         // Hide all game objects that left over
         GameObject obj = null;
         for (int i = m_index; i < m_lines; i++) {
@@ -122,6 +124,8 @@ public class VectrexRenderer : MonoBehaviour {
     int AddLines(int x1, int y1, int x2, int y2, int color) {
         m_index++;
 
+        RB.Log.Debug($"Renderer - Add lines {m_index}-{x1},{y1},{x2},{y2}");
+
         GameObject obj = null;
         LineRenderer lineRenderer = null;
 
@@ -136,11 +140,13 @@ public class VectrexRenderer : MonoBehaviour {
             obj = new GameObject("line_"+m_index);
             lineRenderer = obj.AddComponent<LineRenderer>();
             lineRenderer.useWorldSpace = false;
-            Material mat = new Material(Shader.Find("Unlit/Texture"));
-            lineRenderer.material = mat;
             lineRenderer.startColor = Color.white;
             lineRenderer.endColor = Color.white;
             lineRenderer.material.color = Color.white;
+
+            // TODO: Shader not found in runtime version (path)
+            //Material mat = new Material(Shader.Find("Unlit/Texture"));
+            //lineRenderer.material = mat;
 
             // set width of the renderer
             lineRenderer.startWidth = 0.01f;
@@ -272,7 +278,7 @@ public class VectrexRenderer : MonoBehaviour {
 
         if (m_index > m_lines) {
             m_lines = m_index;
-            RB.Log.Message($"New line max: {m_lines}");
+            RB.Log.Debug($"Renderer: New line max={m_lines}");
         }
     }
     

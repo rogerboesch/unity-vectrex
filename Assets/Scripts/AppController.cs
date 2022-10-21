@@ -7,6 +7,8 @@ using TiltFive;
 
 public class AppController : MonoBehaviour
 {
+    private const int MAX_LOG_LINES = 50;
+
     private static AppController s_instance = null;
 
     public bool gameMode = true;
@@ -317,6 +319,12 @@ public class AppController : MonoBehaviour
     public void AddMessage(string text)
     {
         m_log.Add(text);
+
+        if (m_log.Count > MAX_LOG_LINES)
+        {
+            m_log.RemoveAt(0);
+        }
+
         UpdateLogUI();
     }
 }
